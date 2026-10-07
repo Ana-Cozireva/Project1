@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: artgallery
+      POSTGRES_PASSWORD: artgallery
+      POSTGRES_DB: artgallery
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U artgallery"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://artgallery:artgallery@db:5432/artgallery
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      CORS_ORIGINS: http://localhost:3000
+      ADMIN_EMAIL: admin@artgallery.md
+      ADMIN_PASSWORD: admin12345
+      SEED_DEMO_DATA: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/srv/uploads
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
+  uploads:
