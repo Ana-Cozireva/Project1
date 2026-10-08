@@ -9,6 +9,23 @@ button, .btn { background: #7a1f2b; color: #fff; border: 0; padding: 8px 14px; b
 button.light { background: #fff; color: #17181b; border: 1px solid #bbb; }
 button:disabled { opacity: .5; cursor: default; }
 .main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+.catalog-header { display: flex; justify-content: center; margin: 8px 0 24px; }
+.catalog-title {
+  margin: 0;
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f1efe9 0%, #e7e2d8 100%);
+  color: #2d2d2a;
+  font-family: Georgia, serif;
+  font-size: clamp(1.7rem, 2.8vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(23, 24, 27, 0.08);
+  border: 1px solid #d3cfc5;
+}
 h1, h2 { font-family: Georgia, serif; font-weight: 600; }
 input, select, textarea { font: inherit; padding: 8px; border: 1px solid #bbb; border-radius: 4px; background: #fff; max-width: 100%; }
 .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }

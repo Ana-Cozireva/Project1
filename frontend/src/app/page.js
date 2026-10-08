@@ -35,7 +35,9 @@ export default function Catalog() {
 
   return (
     <>
-      <h1>Каталог</h1>
+      <div className="catalog-header">
+        <h1 className="catalog-title">Каталог</h1>
+      </div>
       <div className="filters">
         <input placeholder="Поиск по названию или художнику" value={f.q} onChange={set("q")} />
         {select("artist_id", "Все художники", refs.artists)}
