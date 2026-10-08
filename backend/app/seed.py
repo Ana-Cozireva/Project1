@@ -55,48 +55,76 @@ PALETTES = [
 
 
 def _make_image(seed: int, kind: str, landscape: bool, root: Path) -> str:
-    """Генерирует абстрактную «картину» для демо-каталога (без внешних ресурсов)."""
+    """Генерирует живописную демо-картину, более похожую на реальное произведение."""
     rnd = random.Random(seed)
     w, h = (1000, 760) if landscape else (760, 1000)
     pal = PALETTES[seed % len(PALETTES)]
-    img = Image.new("RGB", (w, h), pal[-1] if kind != "dark" else pal[0])
+    img = Image.new("RGB", (w, h), pal[-1])
     d = ImageDraw.Draw(img, "RGBA")
 
+    for y in range(h):
+        t = y / max(h, 1)
+        sky = [
+            int(pal[3][i] * (1 - t) + pal[2][i] * t)
+            for i in range(3)
+        ]
+        d.line([(0, y), (w, y)], fill=tuple(sky))
+
     if kind == "landscape":
-        for y in range(h):  # небо
-            t = y / h
-            c = tuple(int(pal[2][i] * (1 - t) + pal[3][i] * t) for i in range(3))
-            d.line([(0, y), (w, y)], fill=c)
-        d.ellipse([w * 0.62, h * 0.14, w * 0.62 + 130, h * 0.14 + 130], fill=(*pal[3], 235))
-        for layer in range(4):
-            base = h * (0.46 + layer * 0.13)
-            pts = [(0, h)]
-            for x in range(0, w + 40, 40):
-                pts.append((x, base + rnd.randint(-38, 38)))
+        # not only flat color but layered hills, sky glow and details
+        d.ellipse([w * 0.68, h * 0.08, w * 0.84, h * 0.22], fill=(*pal[3], 220))
+        for layer, base in enumerate((h * 0.62, h * 0.72, h * 0.82, h)):
+            pts = [(0, h), (0, base + rnd.randint(-35, 35))]
+            for x in range(80, w + 1, 90):
+                pts.append((x, base + rnd.randint(-40, 40)))
             pts.append((w, h))
-            d.polygon(pts, fill=(*pal[layer % 3], 255 - layer * 22))
+            d.polygon(pts, fill=(*pal[layer % 3], 255))
+        d.rectangle([0, int(h * 0.68), w, h], fill=(pal[0][0] // 2, pal[0][1] // 2, pal[0][2] // 2))
+        river_y = h * 0.58
+        d.polygon([(0, river_y), (w * 0.2, river_y + 25), (w * 0.7, river_y - 18), (w, river_y + 35), (w, h), (0, h)], fill=(*pal[1], 180))
+        for i in range(18):
+            x = rnd.randint(30, w - 30)
+            y = rnd.randint(int(h * 0.62), h - 30)
+            d.ellipse([x, y, x + rnd.randint(12, 26), y + rnd.randint(12, 26)], fill=(*pal[2], 70))
+        for _ in range(18):
+            x = rnd.randint(0, w)
+            y = rnd.randint(int(h * 0.5), h)
+            d.line([(x, y), (x + rnd.randint(10, 60), y + rnd.randint(-20, 20))], fill=(*pal[3], 200), width=rnd.randint(2, 5))
     elif kind == "minimal":
         d.rectangle([0, 0, w, h], fill=pal[2])
-        for i in range(rnd.randint(2, 4)):
-            x0 = rnd.randint(40, w // 2)
-            d.rectangle([x0, h * 0.2 + i * 90, x0 + rnd.randint(160, 420), h * 0.2 + i * 90 + rnd.randint(30, 140)], fill=(*pal[i % 3], 240))
-        d.line([(60, h - 120), (w - 60, h - 120)], fill=(*pal[0], 255), width=6)
+        for i in range(4):
+            x = rnd.randint(70, w - 220)
+            y = 120 + i * 150
+            w1 = rnd.randint(200, 420)
+            h1 = rnd.randint(30, 120)
+            d.rectangle([x, y, x + w1, y + h1], fill=(*pal[i % 3], 220))
+        d.line([(60, h - 120), (w - 60, h - 120)], fill=(*pal[0], 255), width=7)
+        d.rectangle([60, h - 140, w - 60, h - 110], fill=(*pal[1], 180))
     elif kind == "dark":
-        for _ in range(26):
-            x, y = rnd.randint(-100, w), rnd.randint(-100, h)
-            r = rnd.randint(60, 340)
-            d.ellipse([x, y, x + r, y + r], fill=(*rnd.choice(pal[1:]), rnd.randint(60, 170)))
-        for _ in range(7):
-            d.line([(rnd.randint(0, w), rnd.randint(0, h)), (rnd.randint(0, w), rnd.randint(0, h))], fill=(*pal[2], 200), width=rnd.randint(3, 12))
+        for _ in range(22):
+            x, y = rnd.randint(-80, w), rnd.randint(-80, h)
+            r = rnd.randint(100, 360)
+            d.ellipse([x, y, x + r, y + r], fill=(*rnd.choice(pal[:3]), rnd.randint(50, 140)))
+        for _ in range(10):
+            d.line([
+                (rnd.randint(0, w), rnd.randint(0, h)),
+                (rnd.randint(0, w), rnd.randint(0, h))
+            ], fill=(*pal[2], 200), width=rnd.randint(2, 10))
+        d.ellipse([w * 0.2, h * 0.18, w * 0.8, h * 0.55], fill=(*pal[3], 28))
     else:  # abstract
         for _ in range(18):
-            x, y = rnd.randint(-60, w), rnd.randint(-60, h)
-            sw, sh = rnd.randint(80, 420), rnd.randint(80, 420)
+            x, y = rnd.randint(-50, w - 50), rnd.randint(-50, h - 50)
+            sw, sh = rnd.randint(90, 420), rnd.randint(80, 420)
+            fill = (*rnd.choice(pal[:3]), rnd.randint(100, 230))
             shape = rnd.choice(("rect", "ellipse"))
-            fill = (*rnd.choice(pal[:3]), rnd.randint(110, 230))
-            (d.rectangle if shape == "rect" else d.ellipse)([x, y, x + sw, y + sh], fill=fill)
-        for _ in range(5):
-            d.line([(rnd.randint(0, w), 0), (rnd.randint(0, w), h)], fill=(*pal[3], 160), width=rnd.randint(2, 8))
+            if shape == "rect":
+                d.rounded_rectangle([x, y, x + sw, y + sh], radius=28, fill=fill)
+            else:
+                d.ellipse([x, y, x + sw, y + sh], fill=fill)
+        for _ in range(6):
+            x1, y1 = rnd.randint(0, w), rnd.randint(0, h)
+            x2, y2 = rnd.randint(0, w), rnd.randint(0, h)
+            d.line([(x1, y1), (x2, y2)], fill=(*pal[3], 160), width=rnd.randint(2, 8))
 
     root.mkdir(parents=True, exist_ok=True)
     name = f"seed-{uuid.uuid4().hex[:12]}.jpg"
