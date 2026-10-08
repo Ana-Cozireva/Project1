@@ -23,23 +23,25 @@ export default function Page() {
   }
 
   return (
-    <>
-      <h1>Регистрация</h1>
-      <form className="form" onSubmit={submit}>
-        {!isLogin && <input placeholder="Имя" value={f.full_name} onChange={set("full_name")} />}
-        <input type="email" required placeholder="Email" value={f.email} onChange={set("email")} />
-        <input type="password" required minLength={isLogin ? 1 : 8} placeholder={isLogin ? "Пароль" : "Пароль (от 8 символов)"} value={f.password} onChange={set("password")} />
-        {!isLogin && (
-          <select value={f.role} onChange={set("role")}>
-            <option value="buyer">Я покупатель</option>
-            <option value="seller">Я продавец (галерея / художник)</option>
-          </select>
-        )}
-        {error && <div className="error">{error}</div>}
-        <button>Регистрация</button>
-        <Link href={isLogin ? "/register" : "/login"} className="muted">{isLogin ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти"}</Link>
-        {isLogin && <p className="muted">Демо: buyer@artgallery.md / buyer12345, gallery@artgallery.md / seller12345, admin@artgallery.md / admin12345</p>}
-      </form>
-    </>
+    <div className="auth-shell">
+      <div className="auth-card">
+        <h1 className="auth-title">Регистрация</h1>
+        <form className="form auth-form" onSubmit={submit}>
+          {!isLogin && <input placeholder="Имя" value={f.full_name} onChange={set("full_name")} />}
+          <input type="email" required placeholder="Email" value={f.email} onChange={set("email")} />
+          <input type="password" required minLength={isLogin ? 1 : 8} placeholder={isLogin ? "Пароль" : "Пароль (от 8 символов)"} value={f.password} onChange={set("password")} />
+          {!isLogin && (
+            <select value={f.role} onChange={set("role")}>
+              <option value="buyer">Я покупатель</option>
+              <option value="seller">Я продавец (галерея / художник)</option>
+            </select>
+          )}
+          {error && <div className="error">{error}</div>}
+          <button className="auth-button">Регистрация</button>
+          <Link href={isLogin ? "/register" : "/login"} className="muted auth-link">{isLogin ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти"}</Link>
+          {isLogin && <p className="muted auth-note">Демо: buyer@artgallery.md / buyer12345, gallery@artgallery.md / seller12345, admin@artgallery.md / admin12345</p>}
+        </form>
+      </div>
+    </div>
   );
 }
